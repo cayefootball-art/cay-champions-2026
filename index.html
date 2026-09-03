@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CAY CHAMPIONS 2026 — eFootball Tournament</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const SUPABASE_URL="https://dqcbsfekiguctlldwcfu.supabase.co";
+const SUPABASE_PUBLISHABLE_KEY="sb_publishable_ruf1U9t4DkE1rI1CgTl_qQ_t13mT8bG";
+const supabaseClient=window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY);
+</script>
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:Arial,Helvetica,sans-serif;background:#070b18;color:#fff}
+:root{--panel:#111a31;--line:#263557;--cyan:#27d7ff;--blue:#2377ff;--muted:#aab6d2}
+header{background:linear-gradient(135deg,#14295c,#09142e);border-bottom:3px solid var(--cyan);padding:34px 16px 28px;text-align:center}
+.logo{font-size:18px;letter-spacing:3px;color:var(--cyan);font-weight:800}.title{font-size:clamp(30px,8vw,58px);font-weight:900;margin:8px 0}.sub{color:var(--muted);font-size:16px}
+nav{position:sticky;top:0;z-index:5;background:#0c1326;border-bottom:1px solid var(--line);display:flex;gap:7px;padding:10px;overflow:auto}
+nav button{white-space:nowrap;border:1px solid var(--line);background:#121d38;color:#fff;border-radius:9px;padding:10px 14px;font-weight:700}
+nav button.active{background:var(--blue);border-color:var(--blue)}
+main{max-width:1100px;margin:auto;padding:18px}
+section{display:none}.show{display:block}.hero,.card{background:var(--panel);border:1px solid var(--line);border-radius:17px;padding:20px;margin-bottom:15px}
+.hero{background:linear-gradient(135deg,#14295c,#10182e)}
+h2{margin-top:0}.muted{color:var(--muted)}.accent{color:var(--cyan)}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.stat{background:#0b1225;border:1px solid var(--line);border-radius:12px;padding:15px;text-align:center}.stat b{display:block;font-size:25px;color:var(--cyan)}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px}
+.match{padding:14px 0;border-top:1px solid var(--line)}.match:first-child{border-top:0}.matchtop{display:flex;justify-content:space-between;color:var(--muted);font-size:13px}.teams{display:grid;grid-template-columns:1fr 65px 1fr;align-items:center;gap:8px;margin-top:9px}.team:last-child{text-align:right}.score{text-align:center;font-weight:900;font-size:19px}.badge{display:inline-block;padding:5px 8px;border-radius:7px;background:#25324f;font-size:11px;font-weight:800}.finished{background:#164b37;color:#7ff0b5}.live{background:#5a241e;color:#ffad9f}
+table{width:100%;border-collapse:collapse}
+.standing-title{color:var(--cyan);font-size:20px;margin:18px 0 8px}
+.standing-table th,.standing-table td{padding:9px 5px;font-size:13px}
+.standing-table th:nth-child(n+3),.standing-table td:nth-child(n+3){text-align:center}
+.rank1{font-weight:900;color:#ffd45c}.rank2{font-weight:900;color:#d9e4f2}.rank3{font-weight:900;color:#d9a27a}th,td{padding:11px 8px;border-bottom:1px solid var(--line);text-align:center}th{color:var(--cyan);background:#0d1529}td:nth-child(2){text-align:left;font-weight:700}.tablewrap{overflow:auto}
+.groupbar{display:flex;gap:7px;overflow:auto;margin-bottom:12px}.groupbar button{background:#17233f;color:#fff;border:1px solid var(--line);padding:9px 13px;border-radius:8px}.groupbar button.active{background:var(--blue)}
+.player{background:#0c1428;border:1px solid var(--line);border-radius:11px;padding:13px}.player b{font-size:16px}
+.day{margin-top:18px}.day h3{color:var(--cyan)}
+footer{text-align:center;color:var(--muted);padding:30px 15px;border-top:1px solid var(--line);margin-top:25px}
+@media(max-width:600px){main{padding:12px}.stats{grid-template-columns:1fr}.teams{grid-template-columns:1fr 55px 1fr;font-size:14px}.hero{padding:17px}}
+</style>
+</head>
+<body>
+<header>
+<div class="logo">👑 CAY FOOTBALL</div>
+<div class="title">CAY CHAMPIONS 2026</div>
+<div class="sub">eFootball Tournament • Official Competition Website</div>
+</header>
+<nav id="nav">
+<button data-page="home" class="active">🏠 Home</button>
+<button data-page="schedule">📅 Jadwal</button>
+<button data-page="standings">🏆 Klasemen</button>
+<button data-page="players">👥 Peserta</button>
+<button data-page="bracket">⚔️ Bracket</button>
+</nav>
+<main>
+<section id="home" class="show">
+<div class="hero"><h2>Selamat Datang di <span class="accent">CAY CHAMPIONS 2026</span></h2><p class="muted">Pantau jadwal, hasil pertandingan, dan klasemen turnamen eFootball secara real-time.</p></div>
+<div class="stats"><div class="stat"><b id="totalMatches">45</b>Match</div><div class="stat"><b>8</b>Grup</div><div class="stat"><b>31</b>Peserta</div></div>
+<div class="card"><h2>🔥 Pertandingan Terbaru</h2><div id="recent">Memuat...</div></div>
+</section>
+
+<section id="schedule"><div class="card"><h2>📅 Jadwal Pertandingan</h2><p class="muted">45 pertandingan • 4 pertandingan per hari, hari terakhir 1 pertandingan.</p><div id="scheduleBox">Memuat...</div></div></section>
+
+<section id="standings"><div class="card"><h2>🏆 Klasemen Lengkap</h2><p class="muted">Semua Grup A–H • Poin: menang 3, seri 1, kalah 0.</p><div id="standingsBox">Memuat...</div></div></section>
+
+<section id="players"><div class="card"><h2>👥 Peserta CAY CHAMPIONS 2026</h2><div id="playersBox" class="grid"></div></div></section>
+
+<section id="bracket"><div class="hero"><h2>⚔️ Bracket</h2><p class="muted">Bracket knockout akan aktif setelah fase grup selesai dan peserta yang lolos ditentukan.</p><div class="grid"><div class="card"><h3>Quarter Final</h3><p class="muted">Menunggu klasemen akhir</p></div><div class="card"><h3>Semifinal</h3><p class="muted">Menunggu hasil Quarter Final</p></div><div class="card"><h3>Grand Final</h3><p class="muted">Menunggu hasil Semifinal</p></div></div></div></section>
+</main>
+<footer>CAY CHAMPIONS 2026 • eFootball Tournament</footer>
+
+<script>
+const groups="ABCDEFGH".split("");
+let matches=[];
+
+const playersByGroup={
+A:["KunTheMaestro","valni30","Catraw_aw","Neptunus FC"],
+B:["Tt_y_o_l_o__12","gwmaudiv1","ONIC-SKYLER-PRO","Bangmenhon"],
+C:["SULLIVAN","Exca gank","ihtakutnyeee","g_41"],
+D:["SKUYYYAH","Musblan","Puhai_79","KAIRELBARRA"],
+E:["MAJENE01","ambaautukaam","dudun2109","EGA111"],
+F:["wild_an14","BONJOVIIII","ZQ_Ocean","muhijaya"],
+G:["ggaming","PJOKOWI","Luksky_ya","kinglambee12"],
+H:["ksnsjuah","kijanggg_pb","Mrkaret"]
+};
+
+function page(id){
+ document.querySelectorAll("main section").forEach(x=>x.classList.remove("show"));
+ document.getElementById(id).classList.add("show");
+ document.querySelectorAll("nav button").forEach(x=>x.classList.toggle("active",x.dataset.page===id));
+ if(id==="standings") renderStandings(currentGroup);
+}
+document.querySelectorAll("nav button").forEach(b=>b.onclick=()=>page(b.dataset.page));
+
+function badge(status){
+ const c=status==="FINISHED"?"finished":status==="LIVE"?"live":"";
+ return `<span class="badge ${c}">${status}</span>`;
+}
+function matchCard(m){
+ return `<div class="match"><div class="matchtop"><span>Match #${m.match_number} • Grup ${m.group_name}</span>${badge(m.status)}</div>
+ <div class="teams"><div class="team">${m.player1}</div><div class="score">${m.score1??"-"} : ${m.score2??"-"}</div><div class="team">${m.player2}</div></div></div>`;
+}
+
+function renderSchedule(){
+ let box=document.getElementById("scheduleBox"); let out="";
+ for(let d=0;d<12;d++){let arr=matches.slice(d*4,d*4+4);if(!arr.length)continue;
+ out+=`<div class="day"><h3>HARI ${d+1} <span class="muted">• ${arr.length} pertandingan</span></h3><div class="card">${arr.map(matchCard).join("")}</div></div>`;
+ }
+ box.innerHTML=out;
+}
+function renderRecent(){
+ let arr=matches.filter(m=>m.status!=="UPCOMING").slice().reverse().slice(0,5);
+ document.getElementById("recent").innerHTML=arr.length?arr.map(matchCard).join(""):"<p class='muted'>Belum ada hasil pertandingan.</p>";
+}
+function standingsFor(g){
+ let ms=matches.filter(m=>m.group_name===g), ps=playersByGroup[g], st={};
+ ps.forEach(p=>st[p]={p,mp:0,w:0,d:0,l:0,gf:0,ga:0,pts:0});
+ ms.forEach(m=>{
+   if(m.score1==null||m.score2==null)return;
+   let a=st[m.player1],b=st[m.player2];if(!a||!b)return;
+   a.mp++;b.mp++;a.gf+=m.score1;a.ga+=m.score2;b.gf+=m.score2;b.ga+=m.score1;
+   if(m.score1>m.score2){a.w++;b.l++;a.pts+=3}
+   else if(m.score2>m.score1){b.w++;a.l++;b.pts+=3}
+   else{a.d++;b.d++;a.pts++;b.pts++}
+ });
+ return Object.values(st).sort((a,b)=>b.pts-a.pts||(b.gf-b.ga)-(a.gf-a.ga)||b.gf-a.gf||a.p.localeCompare(b.p));
+}
+function renderStandings(){
+ const box=document.getElementById("standingsBox");
+ box.innerHTML=groups.map(g=>{
+   const rows=standingsFor(g);
+   return `<div class="card"><div class="standing-title">GRUP ${g}</div>
+   <div class="tablewrap"><table class="standing-table">
+   <tr><th>#</th><th>Player</th><th>P</th><th>W</th><th>D</th><th>L</th><th>GF</th><th>GA</th><th>GD</th><th>PTS</th></tr>
+   ${rows.map((x,i)=>`<tr class="${i<3?'rank'+(i+1):''}">
+   <td>${i+1}</td><td>${x.p}</td><td>${x.mp}</td><td>${x.w}</td><td>${x.d}</td><td>${x.l}</td>
+   <td>${x.gf}</td><td>${x.ga}</td><td>${x.gf-x.ga}</td><td><b>${x.pts}</b></td></tr>`).join("")}
+   </table></div></div>`;
+ }).join("");
+}
+function renderPlayers(){
+ document.getElementById("playersBox").innerHTML=groups.map(g=>`<div class="card"><h3 class="accent">GRUP ${g}</h3>${playersByGroup[g].map((p,i)=>`<div class="player"><b>${i+1}. ${p}</b></div>`).join("")}</div>`).join("");
+}
+async function load(){
+ try{
+  const {data,error}=await supabaseClient.from("matches").select("*").order("match_number");
+  if(error){
+   document.getElementById("recent").innerHTML=`<p class="muted">Gagal terhubung ke database: ${error.message}</p>`;
+   document.getElementById("scheduleBox").innerHTML=`<p class="muted">Database belum dapat dibaca.</p>`;
+   document.getElementById("standingsBox").innerHTML=`<p class="muted">Database belum dapat dibaca.</p>`;
+   return;
+  }
+  matches=data||[];
+  document.getElementById("totalMatches").textContent=matches.length;
+  renderRecent();renderSchedule();renderStandings();renderPlayers();
+ }catch(e){
+  document.getElementById("recent").innerHTML=`<p class="muted">Terjadi kesalahan: ${e.message}</p>`;
+ }
+}
+load();
+setInterval(load,15000);
+</script>
+</body>
+</html>
