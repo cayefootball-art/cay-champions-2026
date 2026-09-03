@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Admin CAY Champions 2026</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+if (!window.supabase) {
+  document.write('<script src="https://unpkg.com/@supabase/supabase-js@2"><\\/script>');
+}
+</script>
+<script>
+const SUPABASE_URL="https://dqcbsfekiguctlldwcfu.supabase.co";
+const SUPABASE_PUBLISHABLE_KEY="sb_publishable_ruf1U9t4DkE1rI1CgTl_qQ_t13mT8bG";
+const supabaseClient=window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY);
+</script>
+<style>
+body{margin:0;font-family:Arial,sans-serif;background:#080d1d;color:#fff}
+header{background:#192d61;text-align:center;padding:34px 16px;border-bottom:4px solid #24cfff}
+header h1{font-size:34px;margin:0}
+main{max-width:900px;margin:auto;padding:20px}
+.card{background:#141c34;border:1px solid #334267;border-radius:16px;padding:22px;margin-bottom:16px}
+input,select{box-sizing:border-box;background:#080d1d;color:#fff;border:1px solid #52658e;border-radius:9px;padding:12px;font-size:16px}
+.login-input{width:100%;margin:7px 0}
+button{background:#1976ff;color:#fff;border:0;border-radius:9px;padding:12px 18px;font-size:16px;font-weight:bold;cursor:pointer}
+button:disabled{opacity:.6}
+.error{color:#ff8d8d}.ok{color:#71e6a0}.muted{color:#aeb9d2}
+.match{border-top:1px solid #334267;padding:15px 0}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:10px}
+.score{width:65px}
+.logout{background:#d33}
+</style>
+</head>
+<body>
+<header><h1>👑 ADMIN CAY CHAMPIONS 2026</h1></header>
+<main>
+<noscript><div class="card"><p class="error">JavaScript browser harus diaktifkan untuk login.</p></div></noscript>
+<section id="loginCard" class="card">
+<h2>Login Admin</h2>
+<p class="muted">Gunakan email dan password akun Supabase admin.</p>
+<form id="loginForm">
+<input id="email" class="login-input" type="email" autocomplete="username" placeholder="Email" required>
+<input id="password" class="login-input" type="password" autocomplete="current-password" placeholder="Password" required>
+<br><br><button id="loginBtn" type="button">LOGIN</button>
+<p id="loginMsg"></p>
+</form>
+</section>
+
+<section id="adminCard" class="card" style="display:none">
+<div class="row" style="justify-content:space-between">
+<div><b id="userEmail"></b><div class="muted">Admin aktif</div></div>
+<button id="logoutBtn" class="logout" type="button">Logout</button>
+</div>
+</section>
+<section id="matchesCard" class="card" style="display:none">
+<h2>Kelola Skor</h2><div id="matches">Memuat...</div>
+</section>
+</main>
+
+<script>
+const ADMIN_UID="ec33dcff-2173-4343-a5cf-e0cba63e3651";
+const $=id=>document.getElementById(id);
+
+async function showLoggedIn(user){
+  if(!user)return false;
+  if(user.id!==ADMIN_UID){
+    await supabaseClient.auth.signOut();
+    $("loginMsg").className="error";
+    $("loginMsg").textContent="Login berhasil, tetapi akun ini bukan admin.";
+    return false;
+  }
+  $("loginCard").style.display="none";
+  $("adminCard").style.display="block";
+  $("matchesCard").style.display="block";
+  $("userEmail").textContent=user.email||"Admin";
+  await loadMatches();
+  return true;
+}
+
+$("loginBtn").addEventListener("click",async ()=>{
+  if(!window.supabase){$("loginMsg").className="error";$("loginMsg").textContent="Library Supabase belum termuat. Refresh halaman.";return;}
+  const btn=$("loginBtn"), msg=$("loginMsg");
+  btn.disabled=true; btn.textContent="LOGIN...";
+  msg.className="muted"; msg.textContent="Memeriksa akun...";
+  try{
+    const {data,error}=await supabaseClient.auth.signInWithPassword({
+      email:$("email").value.trim(),
+      password:$("password").value
+    });
+    if(error){msg.className="error";msg.textContent=error.message;return;}
+    await showLoggedIn(data.user);
+  }catch(err){
+    msg.className="error";msg.textContent="Terjadi kesalahan: "+err.message;
+  }finally{btn.disabled=false;btn.textContent="LOGIN";}
+});
+
+$("logoutBtn").addEventListener("click",async()=>{
+  await supabaseClient.auth.signOut();
+  location.reload();
+});
+
+async function loadMatches(){
+  const box=$("matches");
+  const {data,error}=await supabaseClient.from("matches").select("*").order("match_number");
+  if(error){box.innerHTML='<p class="error">'+error.message+'</p>';return;}
+  box.innerHTML=data.map(m=>`
+    <div class="match">
+      <b>#${m.match_number} — Grup ${m.group_name}</b>
+      <div class="row">
+        <span>${m.player1}</span>
+        <input class="score" id="s1-${m.id}" type="number" min="0" value="${m.score1??""}">
+        <b>:</b>
+        <input class="score" id="s2-${m.id}" type="number" min="0" value="${m.score2??""}">
+        <span>${m.player2}</span>
+        <select id="st-${m.id}">
+          <option value="UPCOMING" ${m.status==="UPCOMING"?"selected":""}>UPCOMING</option>
+          <option value="LIVE" ${m.status==="LIVE"?"selected":""}>LIVE</option>
+          <option value="FINISHED" ${m.status==="FINISHED"?"selected":""}>FINISHED</option>
+        </select>
+        <button type="button" data-id="${m.id}" class="saveBtn">Simpan</button>
+      </div>
+    </div>`).join("");
+  document.querySelectorAll(".saveBtn").forEach(btn=>btn.addEventListener("click",()=>saveMatch(btn.dataset.id)));
+}
+
+async function saveMatch(id){
+  const a=$("s1-"+id).value,b=$("s2-"+id).value,status=$("st-"+id).value;
+  const {error}=await supabaseClient.from("matches").update({
+    score1:a===""?null:Number(a),score2:b===""?null:Number(b),status
+  }).eq("id",id);
+  if(error)alert(error.message);else{alert("Skor berhasil disimpan.");await loadMatches();}
+}
+
+(async()=>{
+  const {data}=await supabaseClient.auth.getSession();
+  if(data.session) await showLoggedIn(data.session.user);
+})();
+</script>
+</body>
+</html>
