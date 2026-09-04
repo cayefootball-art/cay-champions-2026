@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CAY CHAMPIONS 2026</title>
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:Arial,sans-serif;background:#07111f;color:#fff}
+header{position:sticky;top:0;z-index:5;background:#091525ee;border-bottom:1px solid #ffffff18;backdrop-filter:blur(12px)}
+nav{max-width:1150px;margin:auto;padding:14px 4%;display:flex;justify-content:space-between;align-items:center;gap:15px;flex-wrap:wrap}
+.logo{font-weight:900;font-size:20px}.logo b{color:#00d4ff}
+nav button,.btn{border:0;border-radius:10px;padding:10px 14px;background:#12253d;color:#fff;font-weight:700;cursor:pointer}
+nav button.active,.btn.primary{background:#00aeea}.btn.danger{background:#e54861}
+.container{max-width:1150px;margin:auto;padding:0 4%}.hero{text-align:center;padding:70px 4% 45px}
+.hero h1{font-size:clamp(40px,8vw,78px);margin:12px 0}.grad{background:linear-gradient(90deg,#00d4ff,#fff,#8b5cff);color:transparent;background-clip:text}
+.muted{color:#8ea2bd}.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}.stat,.card{background:#102039;border:1px solid #ffffff12;border-radius:16px;padding:18px}
+.stat strong{display:block;font-size:30px;margin-top:6px}.section{padding:30px 0}.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.match{display:flex;flex-direction:column;gap:12px}.head{display:flex;justify-content:space-between;color:#8ea2bd;font-size:12px}.teams{display:grid;grid-template-columns:1fr auto 1fr;gap:8px;align-items:center}.teams div:last-child{text-align:right}.score{font-size:22px;font-weight:900}
+.status{text-align:center;border-radius:20px;padding:5px;background:#ffffff0d;color:#9aaabd;font-size:11px}.finished{color:#20d47b}.live{color:#ff6477}
+.tabs{display:flex;gap:8px;overflow:auto;margin:15px 0}.tabs button{white-space:nowrap;border:1px solid #ffffff15;background:#102039;color:#aab8ca;padding:9px 14px;border-radius:9px}.tabs button.active{background:#7040d9;color:#fff}
+.table{overflow:auto;border:1px solid #ffffff12;border-radius:14px}.table table{width:100%;min-width:650px;border-collapse:collapse}.table th,.table td{padding:11px;border-bottom:1px solid #ffffff0d;text-align:center}.table th{color:#8ea2bd;font-size:12px}.table td:nth-child(2){text-align:left;font-weight:700}
+.bracket{display:grid;grid-template-columns:repeat(5,1fr);gap:12px}.round h3{font-size:14px;color:#00d4ff}.bm{background:#102039;border:1px solid #ffffff12;border-radius:12px;padding:12px;margin-bottom:12px}.row{display:flex;justify-content:space-between;padding:6px 0}
+.admin-row{display:grid;grid-template-columns:1.5fr 70px 70px 1.5fr 120px 80px;gap:8px;align-items:center;margin:8px 0;background:#102039;padding:10px;border-radius:10px}.admin-row input,.admin-row select{width:100%;background:#07111f;color:#fff;border:1px solid #ffffff18;border-radius:7px;padding:8px}
+.hidden{display:none}.empty{text-align:center;padding:35px;color:#8ea2bd}
+@media(max-width:850px){.grid{grid-template-columns:repeat(2,1fr)}.stats{grid-template-columns:repeat(2,1fr)}.bracket{grid-template-columns:1fr 1fr}.admin-row{grid-template-columns:1fr 60px 60px 1fr}}
+@media(max-width:550px){.grid,.stats,.bracket{grid-template-columns:1fr}.hero{padding-top:45px}.admin-row{grid-template-columns:1fr 55px 55px}}
+</style>
+</head>
+<body>
+<header><nav>
+<div class="logo">CAY <b>CHAMPIONS</b> 2026</div>
+<div>
+<button onclick="page('home')" id="n-home">Home</button>
+<button onclick="page('schedule')" id="n-schedule">Jadwal</button>
+<button onclick="page('results')" id="n-results">Hasil</button>
+<button onclick="page('standings')" id="n-standings">Klasemen</button>
+<button onclick="page('playoff')" id="n-playoff">Playoff</button>
+<button onclick="page('admin')" id="n-admin">Admin</button>
+</div>
+</nav></header>
+
+<main>
+<section id="home" class="view">
+<div class="hero"><div class="container">
+<div class="muted">EFOOTBALL MOBILE TOURNAMENT</div>
+<h1>CAY <span class="grad">CHAMPIONS</span> 2026</h1>
+<p class="muted">Pantau jadwal, hasil, klasemen, playoff, dan perubahan skor secara realtime.</p>
+</div></div>
+<div class="container"><div class="stats">
+<div class="stat">Total Tim<strong id="s-teams">32</strong></div>
+<div class="stat">Grup<strong>8</strong></div>
+<div class="stat">Match Grup<strong>48</strong></div>
+<div class="stat">Total Match<strong id="s-matches">64</strong></div>
+</div></div>
+<div class="container section"><h2>Pertandingan Terbaru</h2><div id="home-list" class="grid"></div></div>
+</section>
+
+<section id="schedule" class="view hidden"><div class="container section">
+<h2>Jadwal Pertandingan</h2><div id="schedule-tabs" class="tabs"></div><div id="schedule-list" class="grid"></div>
+</div></section>
+
+<section id="results" class="view hidden"><div class="container section">
+<h2>Hasil Pertandingan</h2><div id="results-list" class="grid"></div>
+</div></section>
+
+<section id="standings" class="view hidden"><div class="container section">
+<h2>Klasemen</h2><div id="standing-tabs" class="tabs"></div><div id="standing-list"></div>
+</div></section>
+
+<section id="playoff" class="view hidden"><div class="container section">
+<h2>Babak Playoff</h2><div id="playoff-list"></div>
+</div></section>
+
+<section id="admin" class="view hidden"><div class="container section">
+<div id="login-box" class="card" style="max-width:430px;margin:30px auto">
+<h2>Admin Login</h2><p class="muted">Gunakan akun Supabase Auth yang memiliki izin update pertandingan.</p>
+<input id="email" type="email" placeholder="Email" style="width:100%;padding:11px;margin:6px 0;background:#07111f;color:#fff;border:1px solid #ffffff18;border-radius:8px">
+<input id="password" type="password" placeholder="Password" style="width:100%;padding:11px;margin:6px 0;background:#07111f;color:#fff;border:1px solid #ffffff18;border-radius:8px">
+<button class="btn primary" onclick="login()">Login</button>
+<div id="login-msg" class="muted" style="margin-top:10px"></div>
+</div>
+<div id="dashboard" class="hidden"><div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:15px">
+<button class="btn primary" onclick="saveAll()">Simpan Semua</button><button class="btn" onclick="loadMatches()">Refresh</button><button class="btn danger" onclick="logout()">Logout</button>
+</div><div id="admin-list"></div></div>
+</div></section>
+</main>
+<footer class="container section muted" style="text-align:center">CAY CHAMPIONS 2026 • Powered by Supabase + GitHub Pages</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+/* =========================================================
+   ISI 2 NILAI DI BAWAH INI DENGAN DATA SUPABASE KAMU.
+   JANGAN masukkan service_role key.
+   ========================================================= */
+const SUPABASE_URL = "GANTI_DENGAN_PROJECT_URL";
+const SUPABASE_ANON_KEY = "GANTI_DENGAN_ANON_KEY";
+
+const db = supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
+let matches=[], groups=[], teams=[], activeGroup="A", activeSchedule="A";
+
+function esc(v){return String(v??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]));}
+function page(id){
+ document.querySelectorAll(".view").forEach(x=>x.classList.add("hidden"));
+ document.getElementById(id).classList.remove("hidden");
+ document.querySelectorAll("nav button").forEach(x=>x.classList.remove("active"));
+ document.getElementById("n-"+id)?.classList.add("active");
+ renderAll();
+ scrollTo(0,0);
+}
+function card(m){
+ const score=m.home_score==null?"VS":`${m.home_score} - ${m.away_score}`;
+ return `<div class="card match"><div class="head"><span>${esc(m.stage)}${m.group_id?" • GRUP":""}</span><span>${esc(m.match_date||"")}</span></div><div class="teams"><b>${esc(m.home_team_name||"TBD")}</b><span class="score">${score}</span><b>${esc(m.away_team_name||"TBD")}</b></div><div class="status ${String(m.status).toLowerCase()}">${esc(m.status)}</div></div>`;
+}
+async function loadBase(){
+ const [g,t,m]=await Promise.all([
+  db.from("groups").select("*").order("group_code"),
+  db.from("teams").select("*").order("team_code"),
+  db.from("matches").select("*").order("match_order")
+ ]);
+ if(g.error||t.error||m.error){console.error(g.error||t.error||m.error);return;}
+ groups=g.data||[]; teams=t.data||[]; matches=m.data||[];
+ document.getElementById("s-teams").textContent=teams.length;
+ document.getElementById("s-matches").textContent=matches.length;
+ renderAll();
+}
+function renderAll(){renderHome();renderSchedule();renderResults();renderStandings();renderPlayoff();if(!document.getElementById("dashboard").classList.contains("hidden"))renderAdmin();}
+function renderHome(){
+ const x=[...matches].filter(m=>m.status==="FINISHED").sort((a,b)=>(b.match_order||0)-(a.match_order||0)).slice(0,6);
+ document.getElementById("home-list").innerHTML=x.length?x.map(card).join(""):`<div class="empty">Belum ada hasil pertandingan.</div>`;
+}
+function renderSchedule(){
+ const tabs=groups.map(g=>`<button class="${g.group_code===activeSchedule?"active":""}" onclick="activeSchedule='${g.group_code}';renderSchedule()">${esc(g.group_name)}</button>`).join("");
+ document.getElementById("schedule-tabs").innerHTML=tabs;
+ const gid=groups.find(g=>g.group_code===activeSchedule)?.id;
+ const x=matches.filter(m=>m.stage==="GROUP"&&m.group_id===gid);
+ document.getElementById("schedule-list").innerHTML=x.map(card).join("")||`<div class="empty">Tidak ada pertandingan.</div>`;
+}
+function renderResults(){
+ const x=matches.filter(m=>m.status==="FINISHED").sort((a,b)=>(b.match_order||0)-(a.match_order||0));
+ document.getElementById("results-list").innerHTML=x.map(card).join("")||`<div class="empty">Belum ada hasil.</div>`;
+}
+function standings(code){
+ const g=groups.find(x=>x.group_code===code); const ts=teams.filter(t=>t.group_id===g?.id);
+ const out=ts.map(t=>({team:t.team_name,mp:0,w:0,d:0,l:0,gf:0,ga:0,gd:0,pts:0}));
+ const map=Object.fromEntries(ts.map((t,i)=>[t.id,out[i]]));
+ matches.filter(m=>m.stage==="GROUP"&&m.group_id===g?.id&&m.status==="FINISHED"&&m.home_score!=null&&m.away_score!=null).forEach(m=>{
+  const h=map[m.home_team_id],a=map[m.away_team_id]; if(!h||!a)return;
+  const hs=+m.home_score,as=+m.away_score; h.mp++;a.mp++;h.gf+=hs;h.ga+=as;a.gf+=as;a.ga+=hs;
+  if(hs>as){h.w++;a.l++;h.pts+=3}else if(hs<as){a.w++;h.l++;a.pts+=3}else{h.d++;a.d++;h.pts++;a.pts++}
+ });
+ out.forEach(x=>x.gd=x.gf-x.ga);
+ return out.sort((a,b)=>b.pts-a.pts||b.gd-a.gd||b.gf-a.gf||a.team.localeCompare(b.team));
+}
+function renderStandings(){
+ document.getElementById("standing-tabs").innerHTML=groups.map(g=>`<button class="${g.group_code===activeGroup?"active":""}" onclick="activeGroup='${g.group_code}';renderStandings()">${esc(g.group_name)}</button>`).join("");
+ const rows=standings(activeGroup);
+ document.getElementById("standing-list").innerHTML=`<div class="table"><table><thead><tr><th>POS</th><th>TIM</th><th>MP</th><th>W</th><th>D</th><th>L</th><th>GF</th><th>GA</th><th>GD</th><th>PTS</th></tr></thead><tbody>${rows.map((x,i)=>`<tr><td>${i+1}</td><td>${esc(x.team)}</td><td>${x.mp}</td><td>${x.w}</td><td>${x.d}</td><td>${x.l}</td><td>${x.gf}</td><td>${x.ga}</td><td>${x.gd}</td><td><b>${x.pts}</b></td></tr>`).join("")}</tbody></table></div>`;
+}
+function renderPlayoff(){
+ const rounds=[["R16","16 BESAR",8],["QF","PEREMPAT FINAL",4],["SF","SEMIFINAL",2],["3RD","JUARA 3",1],["F","FINAL",1]];
+ document.getElementById("playoff-list").innerHTML=`<div class="bracket">${rounds.map(r=>`<div class="round"><h3>${r[1]}</h3>${matches.filter(m=>m.stage===r[0]).sort((a,b)=>a.match_order-b.match_order).map(m=>`<div class="bm"><div class="row"><span>${esc(m.home_team_name||"TBD")}</span><b>${m.home_score??"-"}</b></div><div class="row"><span>${esc(m.away_team_name||"TBD")}</span><b>${m.away_score??"-"}</b></div><div class="status ${String(m.status).toLowerCase()}">${esc(m.status)}</div></div>`).join("")}</div>`).join("")}</div>`;
+}
+async function login(){
+ const email=document.getElementById("email").value.trim(),password=document.getElementById("password").value;
+ const {error}=await db.auth.signInWithPassword({email,password});
+ document.getElementById("login-msg").textContent=error?error.message:"Login berhasil.";
+ if(!error){document.getElementById("login-box").classList.add("hidden");document.getElementById("dashboard").classList.remove("hidden");renderAdmin();}
+}
+async function logout(){await db.auth.signOut();document.getElementById("login-box").classList.remove("hidden");document.getElementById("dashboard").classList.add("hidden");}
+function renderAdmin(){
+ document.getElementById("admin-list").innerHTML=matches.map(m=>`<div class="admin-row" data-id="${m.id}"><b>${esc(m.home_team_name||"TBD")}</b><input class="hs" type="number" min="0" value="${m.home_score??""}"><input class="as" type="number" min="0" value="${m.away_score??""}"><b>${esc(m.away_team_name||"TBD")}</b><select class="st"><option ${m.status==="SCHEDULED"?"selected":""}>SCHEDULED</option><option ${m.status==="LIVE"?"selected":""}>LIVE</option><option ${m.status==="FINISHED"?"selected":""}>FINISHED</option><option ${m.status==="POSTPONED"?"selected":""}>POSTPONED</option><option ${m.status==="CANCELLED"?"selected":""}>CANCELLED</option></select><button class="btn primary" onclick="saveRow('${m.id}')">SAVE</button></div>`).join("");
+}
+async function saveRow(id){
+ const r=document.querySelector(`.admin-row[data-id="${id}"]`),hs=r.querySelector(".hs").value,as=r.querySelector(".as").value;
+ if((hs===""&&as!=="")||(hs!==""&&as===""))return alert("Kedua skor harus diisi atau keduanya dikosongkan.");
+ let status=r.querySelector(".st").value;
+ if(hs!==""&&as!=="")status="FINISHED"; else if(status==="FINISHED")status="SCHEDULED";
+ const {error}=await db.from("matches").update({home_score:hs===""?null:+hs,away_score:as===""?null:+as,status}).eq("id",id);
+ if(error)alert(error.message); else await loadMatches();
+}
+async function saveAll(){
+ const rows=[...document.querySelectorAll(".admin-row")];
+ for(const r of rows){
+  const hs=r.querySelector(".hs").value,as=r.querySelector(".as").value;
+  if((hs===""&&as!=="")||(hs!==""&&as===""))continue;
+  let status=r.querySelector(".st").value;if(hs!==""&&as!=="")status="FINISHED";else if(status==="FINISHED")status="SCHEDULED";
+  const {error}=await db.from("matches").update({home_score:hs===""?null:+hs,away_score:as===""?null:+as,status}).eq("id",r.dataset.id);
+  if(error){alert(error.message);return;}
+ }
+ await loadMatches();alert("Semua data tersimpan.");
+}
+async function loadMatches(){const {data,error}=await db.from("matches").select("*").order("match_order");if(error)return alert(error.message);matches=data||[];renderAll();}
+function startRealtime(){
+ db.channel("cay-champions-live").on("postgres_changes",{event:"*",schema:"public",table:"matches"},()=>loadMatches()).subscribe();
+}
+loadBase().then(startRealtime);
+page("home");
+</script>
+</body>
+</html>

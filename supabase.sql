@@ -1,0 +1,6 @@
+-- CAY CHAMPIONS 2026
+-- Database schema + seed
+-- Gunakan SQL yang sudah dibuat pada tahap Supabase sebelumnya.
+-- File ini disediakan sebagai dokumentasi proyek.
+-- Jika database kamu sudah berhasil dibuat dan berisi 64 pertandingan,
+-- TIDAK perlu menjalankan ulang file ini.
