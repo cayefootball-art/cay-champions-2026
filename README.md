@@ -1,1 +1,0 @@
-# cay-champions-2026
